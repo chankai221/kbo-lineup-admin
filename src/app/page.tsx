@@ -25,7 +25,6 @@ export default function Home() {
   const [awayLineup, setAwayLineup] = useState(Array(9).fill({ name: '', position: '' }));
   const [homePitcher, setHomePitcher] = useState('');
   const [awayPitcher, setAwayPitcher] = useState('');
-  const [lineups, setLineups] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [date, setDate] = useState<string>('');
   const [homeTeam, setHomeTeam] = useState('');
@@ -39,15 +38,6 @@ export default function Home() {
     setMounted(true);
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setIsAdmin(!!user);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    const q = query(collection(db, 'lineups'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-      setLineups(data);
     });
     return () => unsubscribe();
   }, []);
@@ -73,7 +63,7 @@ export default function Home() {
         date,
         homeTeam,
         awayTeam,
-        createdAt: serverTimestamp(), // 🔥 핵심 필드
+        createdAt: serverTimestamp(),
       });
       toast.success('라인업이 저장되었습니다.');
     } catch (err) {
@@ -81,12 +71,6 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleDelete = async (id: string) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
-    await deleteDoc(doc(db, 'lineups', id));
-    toast.success('삭제 완료');
   };
 
   return (
@@ -105,7 +89,7 @@ export default function Home() {
         )}
       </div>
 
-      <AdminLogin onLogin={() => {}} />
+      <AdminLogin onLogin={() => setIsAdmin(true)} />
 
       {isAdmin && (
         <>
