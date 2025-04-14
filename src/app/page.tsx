@@ -59,7 +59,10 @@ export default function Home() {
   };
 
   const handleSubmit = async () => {
-    if (!date.trim() || !homeTeam || !awayTeam) return toast.error('필수 정보를 입력해주세요.');
+    if (!date.trim() || !homeTeam || !awayTeam) {
+      return toast.error('필수 정보를 입력해주세요.');
+    }
+
     setLoading(true);
     try {
       await addDoc(collection(db, 'lineups'), {
@@ -70,7 +73,7 @@ export default function Home() {
         date,
         homeTeam,
         awayTeam,
-        createdAt: serverTimestamp(),
+        createdAt: serverTimestamp(), // 🔥 핵심 필드
       });
       toast.success('라인업이 저장되었습니다.');
     } catch (err) {
@@ -210,37 +213,6 @@ export default function Home() {
           </div>
         </>
       )}
-
-      <div className="mt-10 max-w-5xl mx-auto">
-        <h2 className="text-xl font-bold mb-4">📋 저장된 라인업 목록</h2>
-        {lineups.length === 0 && <p className="text-gray-400">저장된 라인업이 없습니다.</p>}
-        {lineups.map((lineup) => (
-          <div key={lineup.id} className="border border-gray-300 dark:border-gray-700 p-4 rounded mb-4">
-            <div className="flex justify-between items-center">
-              <span className="font-semibold">📅 {lineup.date} - {lineup.homeTeam} vs {lineup.awayTeam}</span>
-              {isAdmin && (
-                <button
-                  onClick={() => handleDelete(lineup.id)}
-                  className="text-red-400 hover:underline text-sm"
-                >
-                  삭제
-                </button>
-              )}
-            </div>
-            <div className="mt-2">
-              <strong>{lineup.homeTeam}:</strong>{' '}
-              {lineup.home?.map((p: any) => `${p.name}(${p.position})`).join(', ')}
-            </div>
-            <div>
-              <strong>{lineup.awayTeam}:</strong>{' '}
-              {lineup.away?.map((p: any) => `${p.name}(${p.position})`).join(', ')}
-            </div>
-            <div className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-              🧤 선발투수: {lineup.homeTeam} - {lineup.homePitcher}, {lineup.awayTeam} - {lineup.awayPitcher}
-            </div>
-          </div>
-        ))}
-      </div>
     </main>
   );
 }
